@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="../../assets/css/dashboard-styles.css" />
     <script src="../../assets/js/dashboard/auth.dashboard.js"></script>
     <script>
-        checkAuthorization(["Admin", "Seller"]);
+        checkAuthorization(["admin", "seller"]);
     </script>
 </head>
 <body class="min-vh-100 d-flex flex-column">
@@ -55,6 +55,7 @@
                                 <th>Category</th>
                                 <th>Review</th>
                                 <th>Price</th>
+                                <th>Stock</th>
                                 <th>Size</th>
                                 <th>Color</th>
                                 <th>Actions</th>
@@ -101,6 +102,12 @@
                                                 <input type="number" id="price" class="form-control" autocomplete="off">
                                             </div>
                                         </div>
+                                        <div class="col">
+                                            <div class="mb-3">
+                                                <label for="stock">stock</label>
+                                                <input type="number" id="stock" class="form-control" autocomplete="off">
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="row">
                                         <div class="col">
@@ -132,8 +139,8 @@
                                     <div class="mb-3">
                                         <label for="imageUrlInput" class="form-label">Product Images</label>
                                         <div class="input-group">
-                                            <input type="text" id="imageUrlInput" class="form-control" placeholder="Enter image URL">
-                                            <button type="button" id="addImageBtn" class="btn btn-primary">Add Image</button>
+                                            <input type="file" id="imageFileInput" multiple accept="image/*">
+                                            <div id="imageList"></div>
                                         </div>
                                         <div id="imageList" class="mt-2"></div>
                                     </div>
@@ -155,5 +162,6 @@
     <script src="../../assets/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/all.min.js"></script>
     <script src="../../assets/js/dashboard/products.dashboard.js"></script>
+    <script src="../../assets/js/dashboard/logout.dashboard.js" defer></script>
 </body>
 </html>
