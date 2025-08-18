@@ -24,7 +24,8 @@ export default function prodcutCard({id, name, images, price,description,seller_
     const stars = renderStars(rating);
     return `
       <div class="card" style="min-width: auto;">
-          <img src="/assets/img/products/${images[1] || images[0]}" class="card-img-top prodcut-img" alt="${name}">
+          <img src="${images && images[0] ? (images[0].startsWith('data:') ? images[0] : '/assets/img/products/' + images[0]) : '/assets/img/women.png'}" 
+          class="card-img-top prodcut-img" alt="${name}">
           <div class="card-body">
               <a href="/pages/onepage-product.html?product=${id}" class="text-dark link-offset-1-hover text-uppercase" />
                 <h5 class="card-title">${name}</h5>
@@ -40,10 +41,10 @@ export default function prodcutCard({id, name, images, price,description,seller_
           </div>
           <div class="card-footer d-flex flex-column bg-light">
               <div class="mb-2 p-2 text-center text-white fw-bold rounded 
-                  ${stock > 0 ? 'bg-success' : 'bg-danger'}">
+                  ${stock > 0 ? 'bg-secondary' : 'bg-danger'}">
                   ${stock > 0 ? `In Stock: ${stock}` : 'Out of Stock'}
               </div>
-              <button class="btn btn-primary btn-sm w-100" 
+              <button class="btn btn-dark btn-sm w-100" 
                       onclick="addToCart(${id}, ${seller_id})" 
                       ${stock === 0 ? 'disabled' : ''}>
                   Add to Cart
