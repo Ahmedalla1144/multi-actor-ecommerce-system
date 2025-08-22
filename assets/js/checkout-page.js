@@ -36,6 +36,7 @@ const citiesByCountry = {
 /* Demo cart data (dynamic)*/
 const currentID = localStorage.getItem("customerSession");
 let cards = JSON.parse(localStorage.getItem("cards")) || [];
+console.log(cards);
 
 if (!currentID) {
     alert("You must log in first.");
@@ -61,17 +62,14 @@ const country = document.getElementById('country');
 const city = document.getElementById('city');
 const zip = document.getElementById('zip');
 const phone = document.getElementById('phone');
+console.log(currentCustomer);
+
 
 document.getElementById('email').value = currentCustomer.email || '';
-document.getElementById('firstName').value = currentCustomer.FirstName || '';
+document.getElementById('firstName').value = currentCustomer.firstName || '';
 document.getElementById('lastName').value = currentCustomer.lastName || '';
 document.getElementById('address').value = currentCustomer.address || '';
 document.getElementById('country').value = currentCustomer.country || '';
-
-// const option = document.createElement("option");
-// option.value = currentCustomer.city;
-// option.textContent = currentCustomer.city;
-// option.selected = true;
 
 document.getElementById('zip').value = currentCustomer.zip || '';
 document.getElementById('phone').value = currentCustomer.phone || '';
@@ -80,6 +78,10 @@ document.getElementById('phone').value = currentCustomer.phone || '';
 
 function renderCart() {
     loadCart();
+    if (!cart || cart.length === 0) {
+        location.href = "/pages/products.html";
+        return;
+    }
     cartList.innerHTML = '';
     cart.forEach(item => {
         const product = products.find(p => p.id === item.product_id);
@@ -116,6 +118,7 @@ cartList.addEventListener('input', (e) => {
             carts = carts.map(c => c.id === id ? { ...c, quantity: qty } : c);
             localStorage.setItem("carts", JSON.stringify(carts));
             renderCart(); 
+            updateCartBadge();
         }
     }
 });
@@ -126,6 +129,7 @@ cartList.addEventListener('click', (e) => {
         carts = carts.filter(c => c.id !== id);
         localStorage.setItem("carts", JSON.stringify(carts));
         renderCart();
+        updateCartBadge();
     }
 });
 
@@ -162,6 +166,7 @@ cartList.addEventListener('input', (e) => {
         const qty = Math.max(1, Number(e.target.value) || 1);
         const it = cart.find(i => i.id === id);
         if (it) { it.quantity = qty; renderCart(); }
+        updateCartBadge();
     }
 });
 cartList.addEventListener('click', (e) => {
@@ -169,6 +174,7 @@ cartList.addEventListener('click', (e) => {
         const id = Number(e.target.dataset.id);
         cart = cart.filter(i => i.id !== id);
         renderCart();
+        updateCartBadge();
     }
 });
 
@@ -269,45 +275,53 @@ form.addEventListener("submit", function (e) {
     }
     if (!updateCustomerData()) return;
 
-    // حساب المجموع
     let subtotal = 0, items = 0;
-    cart.forEach(i => { 
+
+    for (let i of cart) {
         const product = products.find(p => p.id === i.product_id);
-        if (!product) return;
-        subtotal += product.price * i.quantity; 
-        items += i.quantity; 
-    });
+        if (!product) continue;
+
+        if (product.stock < i.quantity) {
+            alert(`Sorry, only ${product.stock} left for "${product.name}".`);
+            return; 
+        }
+
+        subtotal += product.price * i.quantity;
+        items += i.quantity;
+    }
+
     const shipping = subtotal > 0 ? 1 : 0;
     const total = subtotal + shipping;
 
-    // === تحقق من الدفع ===
     if (!processPayment(total)) return;
 
     let orders = JSON.parse(localStorage.getItem("orders")) || [];
     let newId = orders.length > 0 ? orders[orders.length - 1].id + 1 : 1;
 
-    // ✅ إنشاء order لكل منتج بالعربة
     cart.forEach(i => {
         const product = products.find(p => p.id === i.product_id);
         if (!product) return;
 
+        product.stock -= i.quantity;
+
         const order = {
             id: newId++,
             product_id: product.id,
-            seller_id: product.seller_id || "", // لو عندك seller
+            seller_id: product.seller_id || "",
             customer_id: currentCustomer.id,
             status: "Delivery",
             quntity: i.quantity,
-            totalPrice: product.price * i.quantity + (shipping / cart.length), // توزيع الشحن
+            totalPrice: product.price * i.quantity + (shipping / cart.length), 
             date: new Date().toLocaleString()
         };
         orders.push(order);
     });
 
-    // حفظ الطلبات
+    localStorage.setItem("products", JSON.stringify(products));
+
     localStorage.setItem("orders", JSON.stringify(orders));
 
-    alert(`Order #${newId} set successfully!`);
+    alert(`Order placed successfully!`);
     form.reset();
     carts = carts.filter(c => String(c.customer_id) !== String(currentCustomer.id));
     localStorage.setItem("carts", JSON.stringify(carts));
@@ -319,7 +333,6 @@ form.addEventListener("submit", function (e) {
     } else {
         location.href = '../index.html';
     }
-
 });
 function loadCart() {
     const allCarts = JSON.parse(localStorage.getItem("carts")) || [];
@@ -330,7 +343,6 @@ function validateInput(input) {
     const value = input.value.trim();
     const name = input.name || input.id;
 
-    // قواعد التحقق
     const validators = {
         email: val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
         firstName: val => val.length >= 2,
@@ -372,3 +384,15 @@ function processPayment(total) {
     localStorage.setItem("cards", JSON.stringify(cards));
     return true;
 }
+function updateCartBadge() {
+      const customerId = localStorage.getItem("customerSession");
+      if (!customerId) return;
+
+      const carts = JSON.parse(localStorage.getItem("carts")) || [];
+      const count = carts
+        .filter(c => c.customer_id == customerId)
+        .reduce((sum, c) => sum + c.quantity, 0);
+
+      const badge = document.getElementById('CartCount');
+      if (badge) badge.textContent = count;
+  }

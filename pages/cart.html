@@ -3,15 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>Trendora</title>
+        <title>Trendora</title>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <script src="https://kit.fontawesome.com/4f91921791.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="../assets/css/styles.css">
     <script type="module" src="../assets/js/main.js"></script>
     <link rel="stylesheet" href="../assets/css/cart.css">
     <link rel="icon" type="image/x-icon" href="../Trendora.ico">
+    
+    <script src="../assets/js/include/nav.js" defer></script>
+    <script>
+        let currentID = localStorage.getItem("customerSession");
+        const customers = JSON.parse(localStorage.getItem("customers")) || [];
+        const currentCustomer = customers.find(c => String(c.id) === String(currentID));
+    </script>
 </head>
 <body style="background-color: black">
+    <div id="loading-screen">
+        <div class="loading-container">
+            <div class="logo">
+                <h1>Trend<span>ora</span></h1>
+            </div>
+            
+            <div class="loading-animation">
+                <div class="hanger">
+                    <i class="fas fa-tshirt"></i>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+            
+            <div class="loading-text">
+                Curating your style experience...
+            </div>
+            
+            <div class="fashion-icons">
+                <div class="fashion-icon"><i class="fas fa-ring"></i></div>
+                <div class="fashion-icon"><i class="fas fa-shoe-prints"></i></div>
+                <div class="fashion-icon"><i class="fas fa-hat-cowboy"></i></div>
+                <div class="fashion-icon"><i class="fas fa-vest"></i></div>
+            </div>
+            
+            <div class="tagline">
+                Style that speaks before you do
+            </div>
+        </div>
+    </div>
      <header id="header-wrapper">
         <nav id="main-header" class="navbar navbar-expand-lg bg-body-tertiary bg-nav-transparent fixed-top"></nav>
     </header>

@@ -5,17 +5,7 @@ if (!productIdParams) {
     location.pathname = "/";
 }
 
-/* ----------------------------
-   Color Selection (highlight only)
------------------------------ */
-document.querySelectorAll(".swatch").forEach((s) => {
-    s.addEventListener("click", function () {
-        document.querySelectorAll(".swatch").forEach((x) =>
-            x.classList.remove("selected")
-        );
-        this.classList.add("selected");
-    });
-});
+
 
 /* ----------------------------
    Product Details + Reviews
@@ -31,11 +21,9 @@ if (!product) {
         </div>
     `;
 } else {
-    // استرجاع الريفيوز الخاصة بالمنتج
     const allReviews = JSON.parse(localStorage.getItem("reviews")) || [];
     const productReviews = allReviews.filter((r) => r.product_id == product.id);
 
-    // حساب متوسط التقييم
     let avgRating = 0;
     if (productReviews.length > 0) {
         const sum = productReviews.reduce(
@@ -45,7 +33,6 @@ if (!product) {
         avgRating = sum / productReviews.length;
     }
 
-    // عرض التقييم
     document.getElementById("ratingValue").textContent =
         avgRating.toFixed(1) + " / 5";
 
@@ -54,7 +41,6 @@ if (!product) {
             ? productReviews.length + " Reviews"
             : "No Reviews Yet";
 
-    // تلوين النجوم
     const ratingStars = document.querySelectorAll("#ratingStars .star");
     ratingStars.forEach((star) => {
         const value = parseInt(star.getAttribute("data-value"));
@@ -104,9 +90,8 @@ if (!product) {
         });
     });
 
-    // المقاسات
     const productSizeWrapper = document.getElementById("product-size");
-    const sizes = ["s", "m", "l", "XL","XXL", "XXXL"];
+    const sizes = ["S", "M", "L", "XL", "XXL", "XXXL"];
     productSizeWrapper.innerHTML = "";
 
     sizes.forEach((size) => {
@@ -120,7 +105,6 @@ if (!product) {
         productSizeWrapper.appendChild(button);
     });
 
-    // اختيار المقاس
     const addtocartBtn = document.getElementById("addtocartBtn");
     document.querySelectorAll(".size-btn").forEach((b) => {
         if (b.classList.contains("disabled")) return;
@@ -132,42 +116,75 @@ if (!product) {
             addtocartBtn.disabled = false;
         });
     });
+    /* ----------------------------
+    Color Selection (highlight only)
+    ----------------------------- */
+    const productColor = document.getElementById("color-swatches");
+    productColor.innerHTML = "";
+    product.color.forEach((color) => {
+        productColor.innerHTML += `
+            <div class="swatch" data-color="${color}" title="${color}" style="background: ${color}"></div>
+            `;
+    });
+    document.querySelectorAll(".swatch").forEach((s) => {
+        s.addEventListener("click", function () {
+            document.querySelectorAll(".swatch").forEach((x) =>
+                x.classList.remove("selected")
+            );
+            this.classList.add("selected");
+        });
+    });
 
     // منتجات مرتبطة (بنفس الكاتيجوري)
     const relatedProductsWrapper =
         document.getElementById("relatedProductsWrapper");
-    const relatedProducts = products.filter(
-        (p) => p.category === product.category && p.id !== product.id
+    const relatedProducts = products.reverse().filter(
+        (p) => Number(p.category) === Number(product.category) && p.id !== product.id
     ).slice(0, 12);
     relatedProductsWrapper.innerHTML = "";
     relatedProducts.forEach((p) => {
         relatedProductsWrapper.innerHTML += prodcutCard(p);
     });
 }
-document.getElementById('addtocartBtn').addEventListener('click',function(){
+document.getElementById('addtocartBtn').addEventListener('click', function () {
     const customerId = localStorage.getItem("customerSession");
     if (!customerId) {
-        alert("Please log in first");
-        window.location.href = "/pages/login.html";
-        return;
-    }
-    const carts = JSON.parse(localStorage.getItem("carts")) || [];
-    const existing = carts.find(c => c.product_id == product.id && c.customer_id == customerId);
-    if (existing) {
-        existing.quantity += 1;
+        let guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+        const existing = guestCart.find(c => c.product_id == product.id);
+        if (existing) {
+            existing.quantity += 1;
+        } else {
+            const newCart = {
+                id: guestCart.length ? Math.max(...carts.map(c => c.id)) + 1 : 1,
+                product_id: product.id,
+                seller_id: product.seller_id,
+                quantity: 1
+            };
+            guestCart.push(newCart);
+        }
+        localStorage.setItem("guestCart", JSON.stringify(guestCart));
+        showFormMessage("The product has been added to the cart!");
+        updateCartBadge();
     } else {
-        const newCart = {
-            id: carts.length ? Math.max(...carts.map(c => c.id)) + 1 : 1,
-            customer_id: customerId,
-            product_id: product.id,
-            seller_id: product.seller_id,
-            quantity: 1
-        };
-        carts.push(newCart);
+        const carts = JSON.parse(localStorage.getItem("carts")) || [];
+        const existing = carts.find(c => c.product_id == product.id && c.customer_id == customerId);
+        if (existing) {
+            existing.quantity += 1;
+        } else {
+            const newCart = {
+                id: carts.length ? Math.max(...carts.map(c => c.id)) + 1 : 1,
+                customer_id: customerId,
+                product_id: product.id,
+                seller_id: product.seller_id,
+                quantity: 1
+            };
+            carts.push(newCart);
+        }
+        localStorage.setItem("carts", JSON.stringify(carts));
+        showFormMessage("The product has been added to the cart!");
+        updateCartBadge();
     }
-    localStorage.setItem("carts", JSON.stringify(carts));
-    showFormMessage("The product has been added to the cart!");
-    updateCartBadge();
+
 });
 const mainImg = document.getElementById("main-Img");
 const lens = document.createElement("div");
@@ -178,31 +195,31 @@ mainImg.parentElement.appendChild(lens);
 mainImg.addEventListener("mousemove", moveLens);
 lens.addEventListener("mousemove", moveLens);
 mainImg.addEventListener("mouseleave", () => {
-  lens.style.display = "none";
+    lens.style.display = "none";
 });
 mainImg.addEventListener("mouseenter", () => {
-  lens.style.display = "block";
+    lens.style.display = "block";
 });
 
 function moveLens(e) {
-  const rect = mainImg.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
+    const rect = mainImg.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-  const lensSize = lens.offsetWidth / 2;
+    const lensSize = lens.offsetWidth / 2;
 
-  let lensX = x - lensSize;
-  let lensY = y - lensSize;
+    let lensX = x - lensSize;
+    let lensY = y - lensSize;
 
-  if (lensX < 0) lensX = 0;
-  if (lensY < 0) lensY = 0;
-  if (lensX > rect.width - lens.offsetWidth) lensX = rect.width - lens.offsetWidth;
-  if (lensY > rect.height - lens.offsetHeight) lensY = rect.height - lens.offsetHeight;
+    if (lensX < 0) lensX = 0;
+    if (lensY < 0) lensY = 0;
+    if (lensX > rect.width - lens.offsetWidth) lensX = rect.width - lens.offsetWidth;
+    if (lensY > rect.height - lens.offsetHeight) lensY = rect.height - lens.offsetHeight;
 
-  lens.style.left = lensX + "px";
-  lens.style.top = lensY + "px";
+    lens.style.left = lensX + "px";
+    lens.style.top = lensY + "px";
 
-  lens.style.backgroundImage = `url(${mainImg.src})`;
-  lens.style.backgroundSize = rect.width * 2 + "px " + rect.height * 2 + "px";
-  lens.style.backgroundPosition = `-${x * 2 - lensSize}px -${y * 2 - lensSize}px`;
+    lens.style.backgroundImage = `url(${mainImg.src})`;
+    lens.style.backgroundSize = rect.width * 2 + "px " + rect.height * 2 + "px";
+    lens.style.backgroundPosition = `-${x * 2 - lensSize}px -${y * 2 - lensSize}px`;
 }
