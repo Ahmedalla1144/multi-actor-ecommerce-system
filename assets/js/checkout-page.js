@@ -62,11 +62,9 @@ const country = document.getElementById('country');
 const city = document.getElementById('city');
 const zip = document.getElementById('zip');
 const phone = document.getElementById('phone');
-console.log(currentCustomer);
-
 
 document.getElementById('email').value = currentCustomer.email || '';
-document.getElementById('firstName').value = currentCustomer.firstName || '';
+document.getElementById('firstName').value = currentCustomer.FirstName || '';
 document.getElementById('lastName').value = currentCustomer.lastName || '';
 document.getElementById('address').value = currentCustomer.address || '';
 document.getElementById('country').value = currentCustomer.country || '';
@@ -86,10 +84,17 @@ function renderCart() {
     cart.forEach(item => {
         const product = products.find(p => p.id === item.product_id);
         if (!product) return;
-        const imgStr = String(product?.images?.src || product?.images || '').trim();
+        let imgStr = '';
+        if (Array.isArray(product?.images)) {
+        imgStr = String(product.images[0]?.src || product.images[0] || '').trim();
+        } else if (typeof product?.images === 'object') {
+        imgStr = String(product.images?.src || '').trim();
+        } else {
+        imgStr = String(product?.images || '').trim();
+        }
         const finalSrc = (/^data:|^https?:\/\/|^\/\//i.test(imgStr))
         ? imgStr
-        : (imgStr ? `../../assets/img/products/${imgStr}` : `../../assets/img/products/`+product.images[0]);
+        : (imgStr ? `../../assets/img/products/${imgStr}` : `../../assets/img/products/default.png`);
         const row = document.createElement('div'); row.className = 'item-row';
         row.innerHTML = `
       <img src="${finalSrc}" alt="">

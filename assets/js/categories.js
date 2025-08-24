@@ -29,7 +29,7 @@ categoriesRow.innerHTML = categories.map(category => {
   return `
     <div class="col">
       <div class="category">
-        <img src="${imgSrc}" class="card-img-top" alt="Category">
+        <img src="${imgSrc}" class="card-img-top object-fit-cover" alt="Category">
         <p>
           <button class="mt-2 category-btn" data-id="${category.id}">
             ${category.name}
@@ -112,7 +112,7 @@ function renderList(filteredProducts) {
       const { avg: rating = 0, count = 0 } = (typeof getAverageRating === "function") ? getAverageRating(prod.id) : { avg: 0, count: 0 };
       const stars = (typeof renderStars === "function") ? renderStars(rating) : "";
       const imgSrc = prod.images && prod.images[0]
-        ? (prod.images[0].startsWith && prod.images[0].startsWith('data:') ? prod.images[0] : '/assets/img/products/' + prod.images[0])
+        ? (prod.images[0].startsWith && prod.images[0].startsWith('data:') ? prod.images[0] : window.location.origin + '/assets/img/products/' + prod.images[0])
         : '/assets/img/women.png';
 
       return `
