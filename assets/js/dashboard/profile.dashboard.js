@@ -101,7 +101,11 @@ document.querySelector("#editModal form").addEventListener("submit", function(e)
         alert("All fields are required.");
         return;
     }
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!/^[A-Za-z][A-Za-z0-9]*$/u.test(newName)) {
+        showFormMessage("Name must start with a letter and contain only letters and numbers (no spaces).");
+        return;
+    }
+    const emailPattern = /^[a-zA-Z][\w.-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailPattern.test(newEmail)) {
         alert("Invalid email address.");
         return;
@@ -172,6 +176,27 @@ document.querySelector("#editModal form").addEventListener("submit", function(e)
 
     alert("Profile updated successfully!");
 });
+function decryptText(encryptedText) {
+    if (!encryptedText) return '';
 
+    let step1 = encryptedText.substring(1, encryptedText.length - 1);
+
+    let step2 = '';
+    for (let i = 0; i < step1.length; i++) {
+        let charCode = step1.charCodeAt(i);
+        step2 += String.fromCharCode(charCode - 3);
+    }
+
+    let step3 = '';
+    for (let i = 0; i < step2.length; i += 2) {
+        if (i + 1 < step2.length) {
+            step3 += step2[i + 1] + step2[i];
+        } else {
+            step3 += step2[i];
+        }
+    }
+
+    return step3.split('').reverse().join('');
+}
 
 displayProfile();
