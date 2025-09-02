@@ -685,16 +685,18 @@ body.loaded>*:not(#loading-screen) {
     transform: translateY(-50%);
     z-index: 5;
     border: none;
-    background: rgba(0, 0, 0, .6);
+    background: rgba(0, 0, 0, .3);
     color: #fff;
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    line-height: 36px;
     text-align: center;
     font-size: 18px;
     cursor: pointer;
     user-select: none;
+  }
+  .na-btn:active {
+    background-color: #000;
   }
 
   .na-btn.na-prev {
